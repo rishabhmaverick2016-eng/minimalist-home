@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Home • Interactive Phone Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --surface: #141416;
+      --text: #f0f0f0;
+      --muted: #808080;
+      --divider: #222224;
+      --accent: #e5e5e5;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8f8f9;
+      --surface: #ffffff;
+      --text: #111111;
+      --muted: #6e6e73;
+      --divider: #e5e5ea;
+      --accent: #2c2c2e;
+    }
+
+    [data-theme="warm"] {
+      --bg: #f5f0ea;
+      --surface: #ece5dc;
+      --text: #2a2521;
+      --muted: #827871;
+      --divider: #dbd2c8;
+      --accent: #4a3e35;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background: #0d0f12;
+      color: #fff;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .banner {
+      text-align: center;
+      margin-bottom: 20px;
+      max-width: 480px;
+    }
+
+    .banner h1 {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .banner p {
+      font-size: 13px;
+      color: #9ba1a6;
+    }
+
+    /* PHONE FRAME */
+    .phone-mockup {
+      width: 375px;
+      height: 760px;
+      background: var(--bg);
+      border: 8px solid #23272e;
+      border-radius: 46px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.06);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s ease;
+    }
+
+    /* STATUS BAR */
+    .status-bar {
+      height: 38px;
+      padding: 10px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      z-index: 10;
+    }
+
+    .screen {
+      flex: 1;
+      padding: 20px 28px 24px;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* HOME SCREEN */
+    .home-header {
+      margin-top: 16px;
+    }
+
+    .home-time {
+      font-size: 64px;
+      font-weight: 200;
+      letter-spacing: -1.5px;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .home-date {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .couple-note {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--muted);
+      opacity: 0.85;
+      margin-top: 10px;
+    }
+
+    .favorite-list {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      margin: 40px 0;
+    }
+
+    .app-item {
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+
+    .app-item:active {
+      opacity: 0.6;
+      transform: scale(0.98);
+    }
+
+    .app-item .badge {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .home-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      padding: 12px 0;
+    }
+
+    .home-footer:hover {
+      color: var(--text);
+    }
+
+    /* APP DRAWER */
+    .drawer-header {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      height: 42px;
+      background: var(--surface);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 10px;
+      border: 1px solid var(--divider);
+    }
+
+    .search-box input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .search-box input::placeholder {
+      color: var(--muted);
+    }
+
+    .all-apps-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-right: 8px;
+    }
+
+    .all-apps-list::-webkit-scrollbar {
+      width: 3px;
+    }
+    .all-apps-list::-webkit-scrollbar-thumb {
+      background: var(--divider);
+      border-radius: 3px;
+    }
+
+    /* SETTINGS SCREEN */
+    .settings-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .settings-section {
+      margin-bottom: 26px;
+    }
+
+    .settings-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .theme-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--divider);
+      padding: 10px 0;
+      border-radius: 10px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-btn.active {
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 600;
+      border-color: var(--text);
+    }
+
+    .input-field {
+      width: 100%;
+      height: 44px;
+      background: var(--surface);
+      border: 1px solid var(--divider);
+      border-radius: 10px;
+      padding: 0 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .primary-btn {
+      width: 100%;
+      height: 48px;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.2s;
+    }
+
+    .primary-btn:active {
+      opacity: 0.8;
+    }
+
+    /* MINDFUL DELAY MODAL */
+    .mindful-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      text-align: center;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+
+    [data-theme="light"] .mindful-modal {
+      background: rgba(248, 248, 249, 0.96);
+    }
+
+    [data-theme="warm"] .mindful-modal {
+      background: rgba(245, 240, 234, 0.96);
+    }
+
+    .mindful-modal.show {
+      display: flex;
+    }
+
+    .timer-ring {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 3px solid var(--divider);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 200;
+      color: var(--text);
+      margin: 28px 0;
+      position: relative;
+    }
+
+    .sub-btn {
+      width: 100%;
+      height: 44px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--divider);
+      border-radius: 12px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 10px;
+    }
+
+    .sub-btn.enabled {
+      color: var(--text);
+      border-color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="banner">
+    <h1>Minimalist Home (Couple Edition)</h1>
+    <p>Live Phone Simulator • No Icons • Zero Distraction • 100% Free</p>
+  </div>
+
+  <div class="phone-mockup" id="phoneContainer">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span id="statusClock">18:30</span>
+      <div style="display:flex; gap: 8px; align-items:center;">
+        <span onclick="switchScreen('settings')" style="cursor:pointer;" title="Settings">⚙️</span>
+        <span id="statusBattery">86%</span>
+      </div>
+    </div>
+
+    <!-- 1. HOME SCREEN -->
+    <div class="screen active" id="homeScreen">
+      <div class="home-header">
+        <div class="home-time" id="bigClock">18:30</div>
+        <div class="home-date" id="bigDate">Saturday, October 31</div>
+        <div class="couple-note" id="dispCoupleNote">— breathe & be present</div>
+      </div>
+
+      <!-- Pinned Favorites -->
+      <div class="favorite-list" id="favList">
+        <div class="app-item" onclick="openApp('Phone')">phone</div>
+        <div class="app-item" onclick="openApp('Messages')">messages</div>
+        <div class="app-item" onclick="openApp('WhatsApp')">whatsapp</div>
+        <div class="app-item" onclick="openApp('Camera')">camera</div>
+        <div class="app-item" onclick="openApp('Instagram', true)">instagram <span class="badge">⏳ 15s</span></div>
+      </div>
+
+      <!-- Bottom Swipe Cue -->
+      <div class="home-footer" onclick="switchScreen('drawer')">
+        <span>▲</span>
+        <span>ALL APPS</span>
+      </div>
+    </div>
+
+    <!-- 2. APP DRAWER SCREEN -->
+    <div class="screen" id="drawerScreen">
+      <div class="drawer-header">
+        <button class="back-btn" onclick="switchScreen('home')">←</button>
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="searchInput" placeholder="search apps..." oninput="filterApps()">
+        </div>
+      </div>
+
+      <div class="all-apps-list" id="allAppsList">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- 3. SETTINGS SCREEN -->
+    <div class="screen" id="settingsScreen">
+      <div class="drawer-header">
+        <button class="back-btn" onclick="switchScreen('home')">←</button>
+        <div class="settings-title" style="margin-bottom:0;">preferences</div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">APPEARANCE THEME</div>
+        <div class="theme-grid">
+          <button class="theme-btn active" onclick="setTheme('dark', this)">OLED Black</button>
+          <button class="theme-btn" onclick="setTheme('light', this)">Clean Light</button>
+          <button class="theme-btn" onclick="setTheme('warm', this)">Warm Paper</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">COUPLE DAILY MANTRA</div>
+        <input class="input-field" type="text" id="mantraInput" value="breathe & be present" oninput="updateMantra()">
+      </div>
+
+      <div class="settings-section">
+        <button class="primary-btn" onclick="alert('When installed via APK, pressing this triggers Android\'s Default Home App chooser!')">
+          Set as Default Home App
+        </button>
+      </div>
+
+      <div style="font-size: 11px; color: var(--muted); text-align: center; margin-top: auto; line-height: 1.6;">
+        Minimalist Home • Couple Edition<br>
+        Zero Ads • 100% Free Forever
+      </div>
+    </div>
+
+    <!-- 4. MINDFUL DELAY MODAL (15-Sec Breathing Pause) -->
+    <div class="mindful-modal" id="mindfulModal">
+      <div style="font-size: 12px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase;">
+        take a breath
+      </div>
+      <div style="font-size: 18px; color: var(--text); margin-top: 10px; font-weight: 500;" id="mindfulTargetName">
+        Do you really need to open Instagram?
+      </div>
+
+      <div class="timer-ring" id="timerCount">15</div>
+
+      <button class="primary-btn" onclick="cancelMindfulDelay()">
+        Nevermind, stay present
+      </button>
+
+      <button class="sub-btn" id="continueBtn" onclick="finishMindfulDelay()">
+        Please wait 15s...
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const sampleApps = [
+      { name: "Browser / Chrome", mindful: false },
+      { name: "Calculator", mindful: false },
+      { name: "Calendar", mindful: false },
+      { name: "Camera", mindful: false },
+      { name: "Clock", mindful: false },
+      { name: "Email / Gmail", mindful: false },
+      { name: "Gallery / Photos", mindful: false },
+      { name: "Instagram", mindful: true },
+      { name: "Maps", mindful: false },
+      { name: "Messages", mindful: false },
+      { name: "Notes", mindful: false },
+      { name: "Phone", mindful: false },
+      { name: "Reddit", mindful: true },
+      { name: "Settings", mindful: false },
+      { name: "Spotify", mindful: false },
+      { name: "WhatsApp", mindful: false },
+      { name: "YouTube", mindful: true }
+    ];
+
+    function updateClocks() {
+      const now = new Date();
+      const hrs = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      const timeStr = `${hrs}:${mins}`;
+      document.getElementById('statusClock').innerText = timeStr;
+      document.getElementById('bigClock').innerText = timeStr;
+
+      const options = { weekday: 'long', month: 'long', day: 'numeric' };
+      document.getElementById('bigDate').innerText = now.toLocaleDateString('en-US', options);
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    function switchScreen(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      if (screen === 'home') document.getElementById('homeScreen').classList.add('active');
+      if (screen === 'drawer') {
+        document.getElementById('drawerScreen').classList.add('active');
+        document.getElementById('searchInput').value = '';
+        renderAllApps(sampleApps);
+        document.getElementById('searchInput').focus();
+      }
+      if (screen === 'settings') document.getElementById('settingsScreen').classList.add('active');
+    }
+
+    function renderAllApps(apps) {
+      const list = document.getElementById('allAppsList');
+      list.innerHTML = '';
+      if (apps.length === 0) {
+        list.innerHTML = '<div style="color:var(--muted); font-size:14px; margin-top:20px;">No apps found</div>';
+        return;
+      }
+      apps.forEach(app => {
+        const item = document.createElement('div');
+        item.className = 'app-item';
+        item.style.fontSize = '18px';
+        item.innerHTML = `${app.name.toLowerCase()} ${app.mindful ? '<span class="badge">⏳ 15s</span>' : ''}`;
+        item.onclick = () => openApp(app.name, app.mindful);
+        list.appendChild(item);
+      });
+    }
+
+    function filterApps() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = sampleApps.filter(a => a.name.toLowerCase().includes(q));
+      renderAllApps(filtered);
+    }
+
+    let timerInterval = null;
+    function openApp(name, hasMindfulDelay) {
+      if (hasMindfulDelay) {
+        startMindfulDelay(name);
+      } else {
+        alert(`Opening ${name}! (In real phone, launches ${name} instantly)`);
+      }
+    }
+
+    function startMindfulDelay(appName) {
+      const modal = document.getElementById('mindfulModal');
+      const targetText = document.getElementById('mindfulTargetName');
+      const countEl = document.getElementById('timerCount');
+      const contBtn = document.getElementById('continueBtn');
+
+      targetText.innerText = `Do you really need to open ${appName}?`;
+      let seconds = 15;
+      countEl.innerText = seconds;
+      contBtn.innerText = `Please wait ${seconds}s...`;
+      contBtn.classList.remove('enabled');
+
+      modal.classList.add('show');
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        seconds--;
+        if (seconds > 0) {
+          countEl.innerText = seconds;
+          contBtn.innerText = `Please wait ${seconds}s...`;
+        } else {
+          clearInterval(timerInterval);
+          countEl.innerText = '✓';
+          contBtn.innerText = `Continue to ${appName}`;
+          contBtn.classList.add('enabled');
+        }
+      }, 1000);
+    }
+
+    function cancelMindfulDelay() {
+      clearInterval(timerInterval);
+      document.getElementById('mindfulModal').classList.remove('show');
+    }
+
+    function finishMindfulDelay() {
+      const contBtn = document.getElementById('continueBtn');
+      if (contBtn.classList.contains('enabled')) {
+        document.getElementById('mindfulModal').classList.remove('show');
+        alert("Mindful delay completed. Opening app now!");
+      }
+    }
+
+    function setTheme(theme, btn) {
+      document.getElementById('phoneContainer').setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function updateMantra() {
+      const val = document.getElementById('mantraInput').value;
+      document.getElementById('dispCoupleNote').innerText = val ? `— ${val}` : '';
+    }
+
+    renderAllApps(sampleApps);
+  </script>
+</body>
+</html>
