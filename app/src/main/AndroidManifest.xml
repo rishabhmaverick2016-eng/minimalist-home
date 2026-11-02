@@ -16,25 +16,36 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode|orientation|screenSize"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="singleTask"
-            android:clearTaskOnLaunch="true"
             android:stateNotNeeded="true"
+            android:taskAffinity=""
             android:windowSoftInputMode="adjustPan">
             
-            <!-- Registers this app with Android OS as a Home Launcher -->
+            <!-- Standard Android Home Screen Launcher Intent Filter -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Dummy Activity used to reset Android system default launcher cache -->
+        <activity
+            android:name=".FakeHomeActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
-            <!-- Standard app launcher entry so it can also be launched directly from app drawer -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

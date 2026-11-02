@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.minimalist.launcher.data.AppInfo
 import com.minimalist.launcher.data.LauncherPrefs
+import com.minimalist.launcher.helper.LauncherUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -63,12 +64,21 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private val _coupleNote = MutableStateFlow(prefs.getCoupleNote())
     val coupleNote: StateFlow<String> = _coupleNote.asStateFlow()
 
+    private val _isDefaultLauncher = MutableStateFlow(true)
+    val isDefaultLauncher: StateFlow<Boolean> = _isDefaultLauncher.asStateFlow()
+
     init {
+        checkDefaultLauncherStatus()
         loadInstalledApps()
         startClockAndBatteryUpdater()
     }
 
+    fun checkDefaultLauncherStatus() {
+        _isDefaultLauncher.value = LauncherUtils.isDefaultLauncher(context)
+    }
+
     fun loadInstalledApps() {
+        checkDefaultLauncherStatus()
         val pm = context.packageManager
         val intent = Intent(Intent.ACTION_MAIN, null).apply {
             addCategory(Intent.CATEGORY_LAUNCHER)

@@ -38,16 +38,17 @@ jobs:
       uses: softprops/action-gh-release@v2
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       with:
-        tag_name: v1.0.0
-        name: "Minimalist Home v1.0.0 (Ready to Install)"
+        tag_name: v1.0.1
+        name: "Minimalist Home v1.0.1 (Default Launcher Fixed)"
+        make_latest: true
         body: |
-          ### Minimalist Phone: Couple Edition
-          Download `app-debug.apk` below directly to your and your wife's Android phones!
+          ### Minimalist Phone: Couple Edition v1.0.1
+          This update properly registers the app with Android as a **Home Screen Replacement (Launcher)** and adds a 1-tap "Set as Default" prompt.
           
           **How to install on Android:**
-          1. Download `app-debug.apk` onto your phone.
-          2. Tap the downloaded file to install (allow "Install from Unknown Sources" if prompted).
-          3. Press your phone's Home button.
+          1. Download `app-debug.apk` below directly to your phone.
+          2. Tap the downloaded file to install / update.
+          3. When opened, tap **"Set as default launcher"** or press your phone's Home button!
           4. Choose **Minimalist Home** and tap **Always**!
         files: app/build/outputs/apk/debug/app-debug.apk
       env:

@@ -1,5 +1,6 @@
 package com.minimalist.launcher.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.minimalist.launcher.data.AppInfo
+import com.minimalist.launcher.helper.LauncherUtils
 import com.minimalist.launcher.ui.theme.getThemePalette
 import com.minimalist.launcher.viewmodel.LauncherViewModel
 
@@ -507,22 +509,22 @@ fun RenameAppDialog(
 }
 
 fun openDefaultLauncherSettings(context: Context) {
-    try {
-        val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(intent)
-    } catch (_: Exception) {
+    val activity = context as? Activity
+    if (activity != null) {
+        LauncherUtils.promptSetDefaultLauncher(activity)
+    } else {
         try {
             val intent = Intent(Settings.ACTION_HOME_SETTINGS).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
         } catch (_: Exception) {
-            val intent = Intent(Settings.ACTION_SETTINGS).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
+            try {
+                val intent = Intent(Settings.ACTION_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            } catch (_: Exception) {}
         }
     }
 }

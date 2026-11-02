@@ -1,5 +1,6 @@
 package com.minimalist.launcher.ui
 
+import android.app.Activity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.MoreVert
@@ -28,12 +30,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.minimalist.launcher.data.AppInfo
+import com.minimalist.launcher.helper.LauncherUtils
 import com.minimalist.launcher.ui.theme.getThemePalette
 import com.minimalist.launcher.viewmodel.LauncherViewModel
 
@@ -43,6 +48,8 @@ fun HomeScreen(
     viewModel: LauncherViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val activity = context as? Activity
     val themeName by viewModel.currentTheme.collectAsState()
     val palette = getThemePalette(themeName)
     val time by viewModel.currentTime.collectAsState()
@@ -51,6 +58,7 @@ fun HomeScreen(
     val coupleNote by viewModel.coupleNote.collectAsState()
     val favorites by viewModel.favoriteApps.collectAsState()
     val fontSizePref by viewModel.fontSize.collectAsState()
+    val isDefaultLauncher by viewModel.isDefaultLauncher.collectAsState()
 
     val itemFontSize = when (fontSizePref) {
         "SMALL" -> 18.sp
@@ -82,6 +90,47 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(top = 16.dp)
             ) {
+                // Banner if app is not yet the default launcher
+                if (!isDefaultLauncher) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(palette.surface)
+                            .clickable {
+                                activity?.let { LauncherUtils.promptSetDefaultLauncher(it) }
+                            }
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Set as default launcher",
+                                    color = palette.textPrimary,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "Tap to make this your main home screen",
+                                    color = palette.textSecondary,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Text(
+                                text = "SET NOW →",
+                                color = palette.textPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
+
                 // Header with battery and settings icon
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
+import com.minimalist.launcher.helper.LauncherUtils
 import com.minimalist.launcher.ui.AppContextMenuDialog
 import com.minimalist.launcher.ui.AppDrawerScreen
 import com.minimalist.launcher.ui.HomeScreen
@@ -27,6 +28,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        // Automatically prompt to set as default launcher if not yet set
+        if (!LauncherUtils.isDefaultLauncher(this)) {
+            LauncherUtils.promptSetDefaultLauncher(this)
+        }
 
         setContent {
             val currentTheme by viewModel.currentTheme.collectAsState()
@@ -92,6 +98,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.checkDefaultLauncherStatus()
         viewModel.loadInstalledApps()
     }
 }
