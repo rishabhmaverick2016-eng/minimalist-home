@@ -509,22 +509,5 @@ fun RenameAppDialog(
 }
 
 fun openDefaultLauncherSettings(context: Context) {
-    val activity = context as? Activity
-    if (activity != null) {
-        LauncherUtils.promptSetDefaultLauncher(activity)
-    } else {
-        try {
-            val intent = Intent(Settings.ACTION_HOME_SETTINGS).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
-        } catch (_: Exception) {
-            try {
-                val intent = Intent(Settings.ACTION_SETTINGS).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(intent)
-            } catch (_: Exception) {}
-        }
-    }
+    LauncherUtils.promptSetDefaultLauncher(context)
 }

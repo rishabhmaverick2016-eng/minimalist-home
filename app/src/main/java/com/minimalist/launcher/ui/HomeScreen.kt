@@ -98,7 +98,7 @@ fun HomeScreen(
                             .clip(RoundedCornerShape(12.dp))
                             .background(palette.surface)
                             .clickable {
-                                activity?.let { LauncherUtils.promptSetDefaultLauncher(it) }
+                                LauncherUtils.promptSetDefaultLauncher(context)
                             }
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {

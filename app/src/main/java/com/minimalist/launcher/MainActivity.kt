@@ -1,9 +1,17 @@
 package com.minimalist.launcher
 
+import android.app.role.RoleManager
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,13 +33,55 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels()
 
+    // ActivityResultLauncher is mandatory for RoleManager.createRequestRoleIntent on Android 10+
+    private val roleRequestLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        viewModel.checkDefaultLauncherStatus()
+    }
+
+    fun requestDefaultLauncher() {
+        // Method 1: Android 10+ (API 29+) RoleManager using official ActivityResultLauncher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val roleManager = getSystemService(Context.ROLE_SERVICE) as? RoleManager
+            if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
+                if (!roleManager.isRoleHeld(RoleManager.ROLE_HOME)) {
+                    try {
+                        val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_HOME)
+                        roleRequestLauncher.launch(intent)
+                        return
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+
+        // Method 2: Open System Settings directly to Home App chooser
+        val candidateIntents = listOf(
+            Intent(Settings.ACTION_HOME_SETTINGS),
+            Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS),
+            Intent("android.settings.HOME_SETTINGS"),
+            Intent(Settings.ACTION_SETTINGS)
+        )
+
+        for (intent in candidateIntents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                Toast.makeText(this, "Select 'Minimalist Home' as your Home app", Toast.LENGTH_LONG).show()
+                return
+            } catch (_: Exception) {}
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // Automatically prompt to set as default launcher if not yet set
+        // Automatically prompt to set as default launcher on first launch if not yet set
         if (!LauncherUtils.isDefaultLauncher(this)) {
-            LauncherUtils.promptSetDefaultLauncher(this)
+            requestDefaultLauncher()
         }
 
         setContent {
@@ -101,4 +151,13 @@ class MainActivity : ComponentActivity() {
         viewModel.checkDefaultLauncherStatus()
         viewModel.loadInstalledApps()
     }
+}
+
+fun Context.findMainActivity(): MainActivity? {
+    var ctx = this
+    while (ctx is ContextWrapper) {
+        if (ctx is MainActivity) return ctx
+        ctx = ctx.baseContext
+    }
+    return null
 }
